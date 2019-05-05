@@ -10,8 +10,9 @@ require 'pony'
 require 'rspec'
 require 'selenium-webdriver'
 require 'waitutil'
+require 'yaml'
 require './Pages/page'
-require 'mail_send'
+require './mail_send.rb'
 
 Capybara.app_host = 'https://www.mvideo.ru/'
 Capybara.current_driver = :selenium_chrome
@@ -46,3 +47,5 @@ PATHS = {
   'Телевизоры'  => '//span[contains(text(), "Телевизоры")]',
   'Фото'        => '//nobr[contains(text(), "Фото")]',
 }
+
+YAML_PARAMS = YAML.load(File.read('./config/email.params.yaml'))
