@@ -8,7 +8,9 @@ class SendMail
           { to: YAML_PARAMS[:email_to],
             subject: "Hurry up!!! LowPrice on #{item_name} !!!",
             body: "#{item_name}        #{price} RUB          https://www.mvideo.ru#{link}",
+            charset: 'UTF-8',
             via: :smtp,
+            attachments: { file = Dir['./screenshots/*'].first => File.read(file) },
             via_options: {
               user_name:             YAML_PARAMS[:email_from],
               password:              YAML_PARAMS[:password],
@@ -19,6 +21,7 @@ class SendMail
             }
           }
         )
+        puts 'Mail send'
       end
     end
   end

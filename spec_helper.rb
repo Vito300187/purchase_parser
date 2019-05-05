@@ -2,6 +2,7 @@ require 'chromedriver2/helper'
 require 'capybara'
 require 'capybara-select2'
 require 'capybara/dsl'
+require 'capybara-screenshot/rspec'
 require 'capybara/rspec'
 require 'nokogiri'
 require 'pry'
@@ -14,10 +15,18 @@ require 'yaml'
 require './Pages/page'
 require './mail_send.rb'
 
+YAML_PARAMS = YAML.load(File.read('./config/email.params.yaml'))
+
+INTERESTING_PRICE = 25000
+
 Capybara.app_host = 'https://www.mvideo.ru/'
 Capybara.current_driver = :selenium_chrome
 Capybara.page.driver.browser.manage.window.maximize
 Capybara.default_max_wait_time = 10
+Capybara.ignore_hidden_elements = true
+Capybara::Screenshot.autosave_on_failure = false
+Capybara.save_path = './screenshots'
+
 # Capybara.current_driver = :selenium_chrome_headless
 # Capybara.javascript_driver = :selenium
 
@@ -30,8 +39,6 @@ CATEGORY                 = %w[Телевизоры Ноутбуки m_mobile: А
 CATEGORY_DIF_PATH_FIRST  = %w[Фото Красота]
 CATEGORY_DIF_PATH_SECOND = %w[Кухни Дома]
 APPLE_DEVICE             = %w[Apple\ Watch iPhone iPad Mac Apple\ TV iPod Beats Аксессуары]
-
-INTERESTING_PRICE = 10000
 
 # Пути нужны для постановки пути в универсальный метод
 PATHS = {
@@ -47,5 +54,3 @@ PATHS = {
   'Телевизоры'  => '//span[contains(text(), "Телевизоры")]',
   'Фото'        => '//nobr[contains(text(), "Фото")]',
 }
-
-YAML_PARAMS = YAML.load(File.read('./config/email.params.yaml'))

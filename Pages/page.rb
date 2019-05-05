@@ -13,7 +13,7 @@ module Pages
       @contain_pagination_path = '.o-pagination-section'
       @button_next_pagination  = '//a[@class="c-pagination__next font-icon icon-up "]'
       @button_prev_pagination  = '//a[@class="c-pagination__prev font-icon icon-up "]'
-      @first_pagination_page   =  '//a[@title="Перейти на страницу 1"]'
+      @first_pagination_page   = '//a[@title="Перейти на страницу 1"]'
     end
 
     def close_iframe
@@ -78,11 +78,24 @@ module Pages
     end
 
     def page_contains_pagination?
-      find(:css, @contain_pagination_path).visible?
+      find(:css, '.o-pagination-section').text.eql?('') ? false : true
+    end
+
+    def click_pagination
+      if page_contains_pagination?
+        until next_pagination.nil?
+          next_pagination.click
+          parsed_category_and_send_email
+          sleep 1
+        end
+
+        first_pagination_page unless first_pagination_page.nil?
+      end
     end
 
     def first_pagination_page
-      find(:xpath, @first_pagination_page).click
+      find(:xpath, @first_pagination_page).click if page.has_xpath?(@first_pagination_page)
+      puts 'Переход на первую страницу' if page.has_xpath?(@first_pagination_page)
     end
 
     def next_pagination
@@ -97,6 +110,23 @@ module Pages
       find(:xpath, @button_prev_pagination).click
     end
 
+    def clear_screenshots
+      system("rm ./screenshots/*")
+    end
+
+    def make_screenshot(price, link)
+      if price > 0 && price <= INTERESTING_PRICE
+        now_window = current_window
+        interesting_item_window = open_new_window
+        switch_to_window interesting_item_window
+        visit "https://www.mvideo.ru#{link}"
+        page.execute_script('window.scrollTo(0,000259)')
+        screenshot_and_save_page
+        switch_to_window now_window
+        close interesting_item_window
+      end
+    end
+
     def parsed_category_and_send_email
       open_current_url = open(current_url)
       parsed_page = Nokogiri::HTML(open_current_url)
@@ -104,9 +134,12 @@ module Pages
         price = watch_price.css('.c-pdp-price__current').text.gsub(/[[:space:]]/, '').to_i
         item_name = watch_price.css('.sel-product-tile-title').text.strip
         link = watch_price.css('a.sel-product-tile-title').first[:href]
+        make_screenshot(price, link)
 
         SendMail.mail_about_low_price(price, item_name, link)
       end
+
+      clear_screenshots
     end
   end
 end
