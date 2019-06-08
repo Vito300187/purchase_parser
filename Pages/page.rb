@@ -14,20 +14,23 @@ module Pages
       @button_next_pagination  = '//a[@class="c-pagination__next font-icon icon-up "]'
       @button_prev_pagination  = '//a[@class="c-pagination__prev font-icon icon-up "]'
       @first_pagination_page   = '//a[@title="Перейти на страницу 1"]'
+      @show_more               = '//span[contains(text(), "Показать еще")]'
     end
 
     def close_iframe
-      puts 'Закрытие ifrmae на главной странице сайта, для дальнейшей работы'
       unless find('.flocktory-widget').nil?
         iframe = find('iframe')
+        puts 'Close iframe'
         within_frame(iframe) do
-          find('div.close').click
+          find(:xpath, '//div[contains(@class, "close")]').click
+          # find('div.close').click
+          # find('div.pushtip-close').click
         end
       end
     end
 
     def find_city
-      puts 'Выбор города для поиска'
+      puts 'Select a city to search'
 
       if find(:xpath, @map_with_region).text != @city
         find(:xpath, @map_with_region).click
@@ -44,7 +47,7 @@ module Pages
       sleep 3
       # close_iframe
       find_city
-      puts 'Вход в личный кабинет'
+      puts 'Login to personal account'
 
       click_link 'Войти'
       fill_in 'Email', with: 'Repz3@yandex.ru'
@@ -64,17 +67,25 @@ module Pages
     end
 
     def find_category(category, item)
+      # close_iframe
       find(:xpath, "#{PATHS[category]}").hover
       puts "Open category #{category}, item #{item}"
-      find(:xpath, "//strong[@class='header-nav-drop-down-title']//a[text()='#{item}']").click
+      if !item.include?('iPhone')
+        find(:xpath, "//strong[@class='header-nav-drop-down-title']//a[text()='#{item}']").click
+      else
+        click_link 'Apple iPhone'
+      end
     end
 
     def check_item_checkbox(item)
+      show_more_item?
       find(:xpath, "//a[text()='#{item}']").click
+      sleep 5
     end
 
     def uncheck_item_checkbox(item)
       find(:xpath, "//a[text()='#{item}']").click
+      sleep 5
     end
 
     def page_contains_pagination?
@@ -95,7 +106,7 @@ module Pages
 
     def first_pagination_page
       find(:xpath, @first_pagination_page).click if page.has_xpath?(@first_pagination_page)
-      puts 'Переход на первую страницу' if page.has_xpath?(@first_pagination_page)
+      puts 'Go to the main page' if page.has_xpath?(@first_pagination_page)
     end
 
     def next_pagination
@@ -111,7 +122,7 @@ module Pages
     end
 
     def clear_screenshots
-      system("rm ./screenshots/*")
+      system('rm ./screenshots/*') unless Dir.glob('./screenshots/*').empty?
     end
 
     def make_screenshot(price, link)
@@ -123,7 +134,7 @@ module Pages
         page.execute_script('window.scrollTo(0,000259)')
         screenshot_and_save_page
         switch_to_window now_window
-        close interesting_item_window
+        interesting_item_window.close
       end
     end
 
@@ -140,6 +151,13 @@ module Pages
       end
 
       clear_screenshots
+    end
+
+    def show_more_item?
+      if page.has_xpath?(@show_more)
+        find(:xpath, @show_more).click
+        sleep 5
+      end
     end
   end
 end
