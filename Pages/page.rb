@@ -104,6 +104,7 @@ module Pages
 
     def next_pagination
       find(:xpath, @button_next_pagination) if page.has_xpath?(@button_next_pagination)
+      sleep 3
     end
 
     def prev_pagination
@@ -126,7 +127,6 @@ module Pages
 
     def parsed_category_and_send_email(interesting_price)
       loop do
-        sleep 3
         open_current_url = open(current_url)
         parsed_page = Nokogiri::HTML(open_current_url)
         parsed_page.css('.c-product-tile.sel-product-tile-main').each do |item_price|
@@ -139,7 +139,6 @@ module Pages
           clear_screenshots
         end
         next_pagination.nil? ? break : next_pagination.click
-        sleep 5
       end
     end
 
@@ -154,7 +153,7 @@ module Pages
       page.execute_script('window.scrollTo(0, 400)')
       find(:xpath, @select_sort).click
       click_link sort_value, match: :first
-      sleep 5
+      sleep 3
     end
   end
 end
