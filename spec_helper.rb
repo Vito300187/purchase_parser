@@ -13,11 +13,12 @@ require 'selenium-webdriver'
 require 'waitutil'
 require 'yaml'
 require './Pages/page'
+require './Pages/helpers'
 require './mail_send.rb'
 
 YAML_PARAMS = YAML.load(File.read('./config/email.params.yaml'))
 
-INTERESTING_PRICE = 25000
+INTERESTING_PRICE = 15000
 
 Capybara.app_host = 'https://www.mvideo.ru/'
 Capybara.current_driver = :selenium_chrome
