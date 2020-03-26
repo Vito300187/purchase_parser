@@ -1,13 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'chromedriver2-helper'
 gem 'capybara'
-gem 'capybara-select2'
 gem 'capybara-screenshot'
 gem 'selenium-webdriver'
 gem 'nokogiri'
 gem 'pry'
-gem 'pry-rescue'
 gem 'rspec'
 gem 'waitutil'
 gem 'pony'

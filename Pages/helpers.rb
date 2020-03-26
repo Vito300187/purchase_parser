@@ -11,7 +11,7 @@ module Helpers
     page.reset!
   end
 
-  def sell_out?
+  def selling_out?
     page.has_text?('Рассрочка')
   end
 

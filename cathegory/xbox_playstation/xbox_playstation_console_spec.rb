@@ -4,8 +4,8 @@ current_page = Pages::TopPage.new('Москва')
 CONSOLE = {
   'Консоли Xbox One'    => 16000,
   'Консоли PlayStation' => 16000,
-  'Игры для Xbox One'   => 490,
-  'Игры PS4'            => 490
+  'Игры для Xbox One'   => 280,
+  'Игры PS4'            => 280
 }
 
 describe 'Перебор тестов' do

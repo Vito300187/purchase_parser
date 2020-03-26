@@ -1,4 +1,3 @@
-require './spec_helper'
 require './Pages/helpers'
 
 module Pages
@@ -20,9 +19,11 @@ module Pages
       @select_sort             = '//a[@class="select-button"]'
       @close_iframe            = '//div[contains(@class, "close")]'
       @showing_iframe_on_page  = 0
+      @enter_login_path        = '//label[@data-holder="#useEmailToEnter"]'
     end
 
     def close_iframe
+      sleep 3
       if @showing_iframe_on_page < 1
         iframe = find('iframe')
         within_frame(iframe) do
@@ -54,14 +55,19 @@ module Pages
     def enter_site_and_login_cabinet
       Capybara.reset_sessions!
       visit_home_page
-      sleep 3
       # close_iframe
       find_city
       puts 'Login to personal account'
-      click_link 'Войти'
-      fill_in 'Email', with: 'Repz3@yandex.ru'
-      fill_in 'password', with: 'Kuzminow300187'
-      click_button 'Продолжить'
+      click_link 'Вход или регистрация'
+      link_enter_login_path
+      fill_in 'login-original', with: 'Repz3@yandex.ru'
+      fill_in 'login_password', with: 'Kuzminow300187'
+      click_button 'Войти'
+      binding.pry
+
+      # close_iframe - убрать модальное окно либо нажать Escape
+      find(:xpath, '//input[@id="frm-search-text"]').send_keys :escape # модалка не работает
+
       WaitUtil.wait_for_condition(
       'Page include name Виталий',
       timeout_sec: 30,
@@ -74,7 +80,8 @@ module Pages
       close_iframe
       find(:xpath, "#{PATHS[category]}").hover
       puts "Open category #{category} - #{item}"
-      click_link item
+      click_link item, match: :first
+      # item.include?('iPad') ? (click_link item, match: :first) : (click_link item)
     end
 
     def check_item_checkbox(item)
@@ -92,27 +99,30 @@ module Pages
       find(:css, '.o-pagination-section').text.eql?('') ? false : true
     end
 
-    def click_pagination
-      next_pagination.click if (page_contains_pagination? && !next_pagination.nil?)
-      sleep 3
-    end
-
     def first_pagination_page
       find(:xpath, @first_pagination_page).click if page.has_xpath?(@first_pagination_page)
       puts 'Go to the main page' if page.has_xpath?(@first_pagination_page)
     end
 
-    def next_pagination
+    def next_pagination_button
       find(:xpath, @button_next_pagination) if page.has_xpath?(@button_next_pagination)
+    end
+
+    def next_pagination_click
       sleep 3
+      next_pagination_button.click
     end
 
     def prev_pagination
       find(:xpath, @button_prev_pagination).click
     end
 
-    def make_screenshot(price, link, interesting_price)
-      if price > 0 && price <= interesting_price
+    def link_enter_login_path
+      find(:xpath, @enter_login_path).click
+    end
+
+    def make_screenshot(price, link, interesting_price, selling_out)
+      if price > 0 && price <= interesting_price  || selling_out == true
         now_window = current_window
         interesting_item_window = open_new_window
         switch_to_window interesting_item_window
@@ -125,20 +135,21 @@ module Pages
       end
     end
 
-    def parsed_category_and_send_email(interesting_price)
+    def parsed_category_and_send_email(interesting_price, selling_out=false)
       loop do
+        sleep 3
         open_current_url = open(current_url)
         parsed_page = Nokogiri::HTML(open_current_url)
         parsed_page.css('.c-product-tile.sel-product-tile-main').each do |item_price|
           price = item_price.css('.c-pdp-price__current').text.gsub(/[[:space:]]/, '').to_i
           item_name = item_price.css('.sel-product-tile-title').text.strip
           link = item_price.css('a.sel-product-tile-title').first[:href]
-          result = make_screenshot(price, link, interesting_price)
+          result = make_screenshot(price, link, interesting_price, selling_out)
 
-          SendMail.mail_about_low_price(price, item_name, link, result)
+          SendMail.mail_about_low_price(price, item_name, link, result, selling_out)
           clear_screenshots
         end
-        next_pagination.nil? ? break : next_pagination.click
+        next_pagination_button.nil? ? break : next_pagination_click
       end
     end
 

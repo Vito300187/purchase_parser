@@ -1,8 +1,8 @@
 require './spec_helper'
 
 class SendMail
-  def self.mail_about_low_price(price, item_name, link, result)
-    if price > 0 && result == true
+  def self.mail_about_low_price(price, item_name, link, result, selling_out)
+    if price > 0 && result == true || selling_out == true
       Pony.mail(
         { to: YAML_PARAMS[:email_to],
           subject: "Hurry up!!! LowPrice on #{item_name} !!!",
