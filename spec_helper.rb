@@ -11,7 +11,7 @@ require './Pages/page.rb'
 require './Pages/helpers.rb'
 require './mail_send.rb'
 
-YAML_PARAMS = YAML.load(File.read('./config/params.yaml'))
+YAML_PARAMS = YAML.load(File.read('./config/example.params.yaml'))
 
 ENV['EMAIL_TO']   ||= YAML_PARAMS[:email_to]
 ENV['EMAIL_FROM'] ||= YAML_PARAMS[:email_from]
