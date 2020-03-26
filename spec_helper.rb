@@ -11,9 +11,11 @@ require './Pages/page.rb'
 require './Pages/helpers.rb'
 require './mail_send.rb'
 
-YAML_PARAMS = YAML.load(File.read('./config/email.params.yaml'))
+YAML_PARAMS = YAML.load(File.read('./config/params.yaml'))
 
-INTERESTING_PRICE = 15000
+ENV['EMAIL_TO']   ||= YAML_PARAMS[:email_to]
+ENV['EMAIL_FROM'] ||= YAML_PARAMS[:email_from]
+ENV['PASSWORD']   ||= YAML_PARAMS[:password]
 
 Capybara.app_host = 'https://www.mvideo.ru/'
 Capybara.current_driver = :selenium_chrome
@@ -26,11 +28,11 @@ Capybara.save_path = './screenshots'
 # Capybara.current_driver = :selenium_chrome_headless
 # Capybara.javascript_driver = :selenium
 
-RSpec.configure do |config|
-  config.include Capybara::DSL
-end
+RSpec.configure { |config| config.include Capybara::DSL }
 
 # Можно использовать все категории, по которым можно пройтись и выбрать для последующей проверки
+INTERESTING_PRICE = 15000
+
 CATEGORY                 = %w[Телевизоры Ноутбуки m_mobile: Авто Аксессуары Apple Телевизоры]
 CATEGORY_DIF_PATH_FIRST  = %w[Фото Красота]
 CATEGORY_DIF_PATH_SECOND = %w[Кухни Дома]
